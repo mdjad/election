@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Electeur{% endblock %}
+
+{% block body %}
+    <h1>Edit Electeur</h1>
+
+    {{ include('electeur/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('electeur_index') }}">back to list</a>
+
+    {{ include('electeur/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Electeur{% endblock %}
+
+{% block body %}
+    <h1>Create new Electeur</h1>
+
+    {{ include('electeur/_form.html.twig') }}
+
+    <a href="{{ path('electeur_index') }}">back to list</a>
+{% endblock %}
