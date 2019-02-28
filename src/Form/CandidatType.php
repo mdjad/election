@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Candidat;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,8 +17,7 @@ class CandidatType extends AbstractType
             ->add('prenom')
             ->add('date_naissance')
             ->add('site_web')
-            ->add('image')
-            ->add('updatedAt')
+            ->add('imageFile', FileType::class)
             ->add('election')
         ;
     }

@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ElecteurRepository")
+ * @Vich\Uploadable
  */
 class Electeur
 {
@@ -42,6 +45,13 @@ class Electeur
     private $num_carte;
 
     /**
+     * @var File|null
+     * @Assert\Image()
+     * @Vich\UploadableField(mapping="cnis", fileNameProperty="cni_photo")
+     */
+    private $cniFile;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $cni_photo;
@@ -50,6 +60,11 @@ class Electeur
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+
+    public function __construct()
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -138,5 +153,25 @@ class Electeur
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    /**
+     * @return File|null
+     */
+    public function getCniFile(): ?File
+    {
+        return $this->cniFile;
+    }
+
+    /**
+     * @param File|null $cniFile
+     */
+    public function setCniFile(?File $cniFile): Electeur
+    {
+        $this->cniFile = $cniFile;
+
+        if(null !== $cniFile) {
+            $this->updatedAt = new \DateTime();
+        }
     }
 }

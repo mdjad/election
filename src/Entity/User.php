@@ -36,6 +36,17 @@ class User
      */
     private $updatedAt;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Role", inversedBy="users")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $role;
+
+    public function __construct()
+    {
+        $this->updatedAt = new \DateTime();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -85,6 +96,18 @@ class User
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getRole(): ?Role
+    {
+        return $this->role;
+    }
+
+    public function setRole(?Role $role): self
+    {
+        $this->role = $role;
 
         return $this;
     }

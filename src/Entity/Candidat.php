@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CandidatRepository")
+ * @Vich\Uploadable
  */
 class Candidat
 {
@@ -37,6 +40,13 @@ class Candidat
     private $site_web;
 
     /**
+     * @var File|null
+     * @Assert\Image()
+     * @Vich\UploadableField(mapping="candidats", fileNameProperty="image")
+     */
+    private $imageFile;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $image;
@@ -51,6 +61,11 @@ class Candidat
      * @ORM\JoinColumn(nullable=false)
      */
     private $election;
+
+    public function __construct()
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -139,5 +154,25 @@ class Candidat
         $this->election = $election;
 
         return $this;
+    }
+
+    /**
+     * @return File|null
+     */
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    /**
+     * @param File|null $imageFile
+     */
+    public function setImageFile(?File $imageFile): Candidat
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTime();
+        }
     }
 }
