@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -62,9 +64,15 @@ class Candidat
      */
     private $election;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Vote", mappedBy="candidat")
+     */
+    private $votes;
+
     public function __construct()
     {
         $this->updatedAt = new \DateTime();
+        $this->votes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,5 +195,33 @@ class Candidat
             return $age - 1;
         }
         return $age;
+    }
+
+    /**
+     * @return Collection|Vote[]
+     */
+    public function getVotes(): Collection
+    {
+        return $this->votes;
+    }
+
+    public function addVote(Vote $vote): self
+    {
+        if (!$this->votes->contains($vote)) {
+            $this->votes[] = $vote;
+            $vote->addCandidat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVote(Vote $vote): self
+    {
+        if ($this->votes->contains($vote)) {
+            $this->votes->removeElement($vote);
+            $vote->removeCandidat($this);
+        }
+
+        return $this;
     }
 }

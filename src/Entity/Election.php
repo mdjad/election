@@ -24,11 +24,6 @@ class Election
     private $nom;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $slug;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $debut_inscription;
@@ -54,14 +49,14 @@ class Election
     private $candidats;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\candidat")
+     * @ORM\OneToMany(targetEntity="App\Entity\Vote", mappedBy="election")
      */
-    private $vote;
+    private $votes;
 
     public function __construct()
     {
         $this->candidats = new ArrayCollection();
-        $this->vote = new ArrayCollection();
+        $this->votes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -77,18 +72,6 @@ class Election
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(string $slug): self
-    {
-        $this->slug = $slug;
 
         return $this;
     }
@@ -173,26 +156,31 @@ class Election
     }
 
     /**
-     * @return Collection|candidat[]
+     * @return Collection|Vote[]
      */
-    public function getVote(): Collection
+    public function getVotes(): Collection
     {
-        return $this->vote;
+        return $this->votes;
     }
 
-    public function addVote(candidat $vote): self
+    public function addVote(Vote $vote): self
     {
-        if (!$this->vote->contains($vote)) {
-            $this->vote[] = $vote;
+        if (!$this->votes->contains($vote)) {
+            $this->votes[] = $vote;
+            $vote->setElection($this);
         }
 
         return $this;
     }
 
-    public function removeVote(candidat $vote): self
+    public function removeVote(Vote $vote): self
     {
-        if ($this->vote->contains($vote)) {
-            $this->vote->removeElement($vote);
+        if ($this->votes->contains($vote)) {
+            $this->votes->removeElement($vote);
+            // set the owning side to null (unless already changed)
+            if ($vote->getElection() === $this) {
+                $vote->setElection(null);
+            }
         }
 
         return $this;
