@@ -30,6 +30,11 @@ class Electeur
     private $prenom;
 
     /**
+     * @ORM\Column(type="date")
+     */
+    private $date_naissance;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
     private $telephone;
@@ -47,7 +52,7 @@ class Electeur
     /**
      * @var File|null
      * @Assert\Image()
-     * @Vich\UploadableField(mapping="cnis", fileNameProperty="cni_photo")
+     * @Vich\UploadableField(mapping="electteurs", fileNameProperty="cni_photo")
      */
     private $cniFile;
 
@@ -119,6 +124,18 @@ class Electeur
         return $this;
     }
 
+    public function getDateNaissance(): ?\DateTimeInterface
+    {
+        return $this->date_naissance;
+    }
+
+    public function setDateNaissance(\DateTimeInterface $date_naissance): self
+    {
+        $this->date_naissance = $date_naissance;
+
+        return $this;
+    }
+
     public function getNumCarte(): ?string
     {
         return $this->num_carte;
@@ -174,4 +191,18 @@ class Electeur
             $this->updatedAt = new \DateTime();
         }
     }
+
+    public function getVotant() {
+        return $this->getNom(). ' '.$this->getPrenom();
+    }
+
+    public function getAge() {
+        $age = date('Y') - date('Y', strtotime($this->getDateNaissance()));
+
+        if (date('md') < date('md', strtotime($this->getDateNaissance()))) {
+            return $age - 1;
+        }
+        return $age;
+    }
+
 }

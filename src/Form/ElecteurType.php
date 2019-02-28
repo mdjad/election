@@ -18,7 +18,7 @@ class ElecteurType extends AbstractType
             ->add('telephone')
             ->add('email')
             ->add('num_carte')
-            ->add('cni_photo', FileType::class, array(
+            ->add('cniFile', FileType::class, array(
                 'required' => false,
             ))
         ;

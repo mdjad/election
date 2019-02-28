@@ -30,7 +30,7 @@ class AppFixtures extends Fixture
         $iter = 1;
         foreach ($roles as $key => $value) {
             $role[$iter] = new Role();
-            $role[$iter]->getNom($key)
+            $role[$iter]->setNom($key)
                 ->setDescription($value);
             $manager->persist($role[$iter]);
             $iter++;

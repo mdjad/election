@@ -175,4 +175,17 @@ class Candidat
             $this->updatedAt = new \DateTime();
         }
     }
+
+    public function getPostulant() {
+        return $this->getNom(). ' '.$this->getPrenom();
+    }
+
+    public function getAge() {
+        $age = date('Y') - date('Y', strtotime($this->getDateNaissance()));
+
+        if (date('md') < date('md', strtotime($this->getDateNaissance()))) {
+            return $age - 1;
+        }
+        return $age;
+    }
 }
