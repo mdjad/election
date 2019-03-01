@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -71,7 +72,7 @@ class Candidat
 
     public function __construct()
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new \DateTime('now');
         $this->votes = new ArrayCollection();
     }
 
@@ -173,28 +174,17 @@ class Candidat
     }
 
     /**
-     * @param File|null $imageFile
+     * @param File|\Symfony\Component\HttpFoundation\File\UploadedFile $imageFile
      */
     public function setImageFile(?File $imageFile): Candidat
     {
         $this->imageFile = $imageFile;
 
         if (null !== $imageFile) {
-            $this->updatedAt = new \DateTime();
+            $this->updatedAt = new \DateTime('now');
         }
-    }
 
-    public function getPostulant() {
-        return $this->getNom(). ' '.$this->getPrenom();
-    }
-
-    public function getAge() {
-        $age = date('Y') - date('Y', strtotime($this->getDateNaissance()));
-
-        if (date('md') < date('md', strtotime($this->getDateNaissance()))) {
-            return $age - 1;
-        }
-        return $age;
+        return $this;
     }
 
     /**
@@ -224,4 +214,20 @@ class Candidat
 
         return $this;
     }
+
+    public function getPostulant() {
+        return $this->getNom(). ' '.$this->getPrenom();
+    }
+
+    public function getAge() {
+
+        $age = date('Y') - $this->getDateNaissance()->format('Y');
+
+        if ( date('md') < $this->getDateNaissance()->format('md') ) {
+            return $age - 1;
+        }
+        return $age;
+    }
+
+
 }
