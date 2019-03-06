@@ -1,0 +1,17 @@
+easy_admin:
+    entities:
+        Electeur:
+            class: App\Entity\Electeur
+            form:
+                fields:
+                    - 'nom'
+                    - 'prenom'
+                    - {property: 'date_naissance', type: 'date', type_options: { widget: 'single_text'}}
+                    - {property: 'telephone', type: 'tel'}
+                    - {property: 'email', type: 'email'}
+                    - {property: 'num_carte', type: 'number'}
+                    - {property: 'cniFile', type: 'vich_image'}
+            list:
+                fields: ['id', 'votant', 'age', 'telephone', 'email', {property: 'cni_photo', label: 'CNI', type: 'image', base_path: '%electeur_images%'}]
+            show:
+                fields: ['votant', 'age', 'telephone', 'email', {property: 'cni_photo', label: 'CNI', type: 'image', base_path: '%electeur_images%'}]
