@@ -14,6 +14,9 @@ easy_admin:
             - '@EasyAdmin/form/bootstrap_4.html.twig'
             - '@VichUploader/Form/fields.html.twig'
         brand_color: '#0099ff'
+        assets:
+            css:
+                - '/css/election.css'
     formats:
         date:     'd/m/Y'
         datetime: 'd/m/Y H:i'
