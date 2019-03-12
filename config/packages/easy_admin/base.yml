@@ -17,6 +17,7 @@ easy_admin:
         assets:
             css:
                 - '/css/election.css'
+            favicon: '/images/comores_icon.png'
     formats:
         date:     'd/m/Y'
         datetime: 'd/m/Y H:i'
