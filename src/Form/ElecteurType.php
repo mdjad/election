@@ -21,9 +21,9 @@ class ElecteurType extends AbstractType
         $builder
             ->add('nom' ,TextType::class )
             ->add('prenom',TextType::class)
-            ->add('date_naissance',DateType::class,array(
+            ->add('date_naissance',DateType::class, array(
                 'widget'=> 'single_text',
-                'label' => "Numero de la carte d'identité"
+                'label' => "Date de naissance"
             ))
             ->add('telephone',NumberType::class)
             ->add('email',EmailType::class)

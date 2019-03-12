@@ -13,12 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/electeur")
+ * @Route("/inscription")
  */
 class ElecteurController extends AbstractController
 {
     /**
-     * @Route("/", name="electeur_index", methods={"GET"})
+     * @Route("/", name="inscription", methods={"GET"})
      */
     public function index(): Response
     {
@@ -27,7 +27,7 @@ class ElecteurController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="electeur_new", methods={"GET","POST"})
+     * @Route("/nouveau", name="inscription_new", methods={"GET","POST"})
      */
     public function new(Request $request ,Swift_Mailer $mailer): Response
     {
@@ -73,8 +73,6 @@ class ElecteurController extends AbstractController
         ]);
     }
 
-
-
     /**
      * @Route("/redirection/{token}", name="electeur_redirect", methods={"GET","POST"})
      */
@@ -91,9 +89,8 @@ class ElecteurController extends AbstractController
             }
     }
 
-
-    public function generateNumerosElecteur(Electeur $electeur){
-
+    public function generateNumerosElecteur(Electeur $electeur)
+    {
         $date = $electeur->getDateNaissance()->format("Y");
         $likeCharacter = $electeur->getNom()[0];
         $newNumber = $likeCharacter . $date . '-' . str_pad($electeur->getId(), 4, '0', STR_PAD_LEFT);

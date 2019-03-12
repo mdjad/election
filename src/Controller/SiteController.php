@@ -38,16 +38,6 @@ class SiteController extends AbstractController
     }
 
     /**
-     * @Route("/inscription", name="inscription")
-     */
-    public function inscription()
-    {
-        return $this->render('site/index.html.twig', [
-            'controller_name' => 'SiteController',
-        ]);
-    }
-
-    /**
      * @Route("/code", name="code")
      */
     public function code()
