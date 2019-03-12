@@ -23,6 +23,11 @@ class Electeur
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255,  nullable=true)
+     */
+    private $num_electorale;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
     private $nom;
@@ -74,6 +79,11 @@ class Electeur
      */
     private $votes;
 
+    /**
+     * @ORM\Column(type="string", length=255,  nullable=true)
+     */
+    private $token;
+
     public function __construct()
     {
         $this->updatedAt = new \DateTime('now');
@@ -83,6 +93,22 @@ class Electeur
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumElectorale(): ?string
+    {
+        return $this->num_electorale;
+    }
+
+    /**
+     * @param mixed $num_electorale
+     */
+    public function setNumElectorale($num_electorale): void
+    {
+        $this->num_electorale = $num_electorale;
     }
 
     public function getNom(): ?string
@@ -247,4 +273,26 @@ class Electeur
         }
         return $age;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param mixed $token
+     */
+    public function setToken($token): void
+    {
+        $this->token = $token;
+    }
+
+    public function __toString()
+    {
+        return $this->getNom()." ".$this->getPrenom();
+    }
+
 }

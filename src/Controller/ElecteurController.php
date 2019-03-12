@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Electeur;
 use App\Form\ElecteurType;
 use App\Repository\ElecteurRepository;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,27 +20,50 @@ class ElecteurController extends AbstractController
     /**
      * @Route("/", name="electeur_index", methods={"GET"})
      */
-    public function index(ElecteurRepository $electeurRepository): Response
+    public function index(): Response
     {
         return $this->render('electeur/index.html.twig', [
-            'electeurs' => $electeurRepository->findAll(),
         ]);
     }
 
     /**
      * @Route("/new", name="electeur_new", methods={"GET","POST"})
      */
-    public function new(Request $request): Response
+    public function new(Request $request ,Swift_Mailer $mailer): Response
     {
         $electeur = new Electeur();
         $form = $this->createForm(ElecteurType::class, $electeur);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $entityManager = $this->getDoctrine()->getManager();
+            $token = md5(random_bytes(10));
+            $electeur->setToken($token);
             $entityManager->persist($electeur);
             $entityManager->flush();
 
+            //send mail admin
+            $messageAdmin = (new Swift_Message())
+                ->setSubject("Demande de Validation de ".$electeur)
+                ->setFrom('nomDuCompteAdministrateur@gmail.com')
+                ->setTo("adresseDesAdministrateurQuiValide@exemple.fr")
+                ->setBody($this->renderView( 'electeur/email/adminNotification.html.twig',
+                    array('electeur' => $electeur ) ), 'text/html' );
+
+            //send mail electeur
+            $messageElect = (new Swift_Message())
+                ->setSubject("Avis de reception a la liste électorale")
+                ->setFrom('nomDuCompteAdministrateur@gmail.com') //email admin
+                ->setTo($electeur->getEmail())
+                ->setBody($this->renderView( 'electeur/email/electeurNotification.html.twig',
+                    array('electeur' => $electeur ) ), 'text/html' );
+
+
+            $mailer->send($messageAdmin);
+            $mailer->send($messageElect);
+
+            $this->addFlash('success', 'Votre inscription a bien été effectué');
             return $this->redirectToRoute('electeur_index');
         }
 
@@ -48,49 +73,83 @@ class ElecteurController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="electeur_show", methods={"GET"})
-     */
-    public function show(Electeur $electeur): Response
-    {
-        return $this->render('electeur/show.html.twig', [
-            'electeur' => $electeur,
-        ]);
-    }
+
 
     /**
-     * @Route("/{id}/edit", name="electeur_edit", methods={"GET","POST"})
+     * @Route("/redirection/{token}", name="electeur_redirect", methods={"GET","POST"})
      */
-    public function edit(Request $request, Electeur $electeur): Response
+    public function redirection($token): Response
     {
-        $form = $this->createForm(ElecteurType::class, $electeur);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('electeur_index', [
-                'id' => $electeur->getId(),
-            ]);
-        }
-
-        return $this->render('electeur/edit.html.twig', [
-            'electeur' => $electeur,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="electeur_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Electeur $electeur): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$electeur->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($electeur);
-            $entityManager->flush();
+            $electeur =  $entityManager->getRepository(Electeur::class)->findOneBy(array('token'=>$token));
+
+            if($electeur) {
+                return $this->redirectToRoute('easyadmin', array('action' => 'show','entity' => 'Electeur','menuIndex'=> 1,'id' => $electeur->getId()));
+            }else{
+                $this->addFlash('danger', 'Electeur non trouvé');
+                return $this->redirectToRoute('easyadmin', array('action' => 'list','entity' => 'Electeur','menuIndex'=> 1 ));
+            }
+    }
+
+
+    public function generateNumerosElecteur(Electeur $electeur){
+
+        $date = $electeur->getDateNaissance()->format("Y");
+        $likeCharacter = $electeur->getNom()[0];
+        $newNumber = $likeCharacter . $date . '-' . str_pad($electeur->getId(), 4, '0', STR_PAD_LEFT);
+
+        $serial = hash('md5',$electeur->getNumCarte());
+        $formattedSerial = "";
+        for($i=0; $i<strlen($serial)/2; $i++){
+            if($i == 4 || $i == 8 || $i == 12 || $i == 16){
+                $formattedSerial .= '-';
+            }
+            $formattedSerial .= $serial[$i];
         }
 
-        return $this->redirectToRoute('electeur_index');
+        $formattedSerial = $formattedSerial.'-'.$newNumber;
+        $formattedSerial = strtoupper($formattedSerial);
+
+        return $formattedSerial;
+
     }
+
+    /**
+     * @Route("/validation/{id}", name="electeur_validation", methods={"GET","POST"})
+     */
+    public function validation($id,Swift_Mailer $mailer): Response
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $electeur =  $entityManager->getRepository(Electeur::class)->findOneBy(array('id'=>$id));
+
+        if(!$electeur) {
+            $this->addFlash('danger', 'electeur non trouvé');
+            return $this->redirectToRoute('easyadmin', array('action' => 'list','entity' => 'Electeur','menuIndex'=> 1 ));
+        }else{
+
+            if($this->getUser()){
+                if(! $electeur->getNumElectorale()) {
+                    $numELectorale = $this->generateNumerosElecteur($electeur);
+                    $electeur->setNumElectorale($numELectorale);
+                    $entityManager->persist($electeur);
+                    $entityManager->flush();
+
+                    //send mail electeur
+                    $messageElect = (new Swift_Message())
+                        ->setSubject("Numeros Electeur")
+                        ->setFrom('nomDuCompteAdministrateur@gmail.com') //email admin
+                        ->setTo($electeur->getEmail())
+                        ->setBody($this->renderView( 'electeur/email/electeurConfirmation.html.twig',
+                            array('electeur' => $electeur ) ), 'text/html' );
+                    $mailer->send($messageElect);
+
+                    $this->addFlash('success', 'Validation effectué');
+                }else{
+                    $this->addFlash('danger', 'la demande a deja été traité');
+                }
+            }
+            return $this->redirectToRoute('easyadmin', array('action' => 'show','entity' => 'Electeur','menuIndex'=> 1,'id' => $electeur->getId()));
+        }
+    }
+
 }
