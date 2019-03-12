@@ -1,0 +1,30 @@
+easy_admin:
+    site_name: 'Election Système'
+    design:
+        menu:
+            - label: 'Menu principal'
+              icon: 'tasks'
+              children:
+                - {entity: 'Election', icon: 'archive', default: true}
+                - {entity: 'Candidat', icon: 'id-badge'}
+                - {entity: 'Electeur', icon: 'users'}
+            - {entity: 'Utilisateur', icon: 'user-circle'}
+            - {entity: 'Role', icon: 'diamond'}
+        form_theme:
+            - '@EasyAdmin/form/bootstrap_4.html.twig'
+            - '@VichUploader/Form/fields.html.twig'
+        brand_color: '#0099ff'
+        assets:
+            css:
+                - '/css/election.css'
+            favicon: '/images/comores_icon.png'
+    formats:
+        date:     'd/m/Y'
+        datetime: 'd/m/Y H:i'
+    list:
+        actions:
+            - {name: 'show', icon: 'eye'}
+            - {name: 'edit', icon: 'pencil'}
+            - {name: 'delete', icon: 'trash'}
+    user:
+        name_property_path: 'username'

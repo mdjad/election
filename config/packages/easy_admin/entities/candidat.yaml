@@ -1,0 +1,16 @@
+easy_admin:
+    entities:
+        Candidat:
+            class: App\Entity\Candidat
+            form:
+                fields:
+                    - 'nom'
+                    - 'prenom'
+                    - {property: 'date_naissance', type: 'date', type_options: { widget: 'single_text'}}
+                    - {property: 'site_web', typ: 'url'}
+                    - {property: 'imageFile', type: 'vich_image'}
+                    - 'election'
+            list:
+                fields: ['id', 'postulant', 'age', 'site_web', {property: 'image', type: 'image', base_path: '%candidat_images%'}]
+            show:
+                fields: ['postulant', 'age', 'site_web', {property: 'image', type: 'image', base_path: '%candidat_images%'}]
