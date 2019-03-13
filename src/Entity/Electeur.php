@@ -5,12 +5,14 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ElecteurRepository")
+ * @UniqueEntity(fields={"telephone", "num_carte", "num_electorale"})
  * @Vich\Uploadable
  */
 class Electeur
@@ -21,11 +23,6 @@ class Electeur
      * @ORM\Column(type="integer")
      */
     private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255,  nullable=true)
-     */
-    private $num_electorale;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -43,7 +40,7 @@ class Electeur
     private $date_naissance;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $telephone;
 
@@ -56,6 +53,16 @@ class Electeur
      * @ORM\Column(type="string", length=255)
      */
     private $num_carte;
+
+    /**
+     * @ORM\Column(type="string", length=255,  nullable=true)
+     */
+    private $num_electorale;
+
+    /**
+     * @ORM\Column(type="string", length=255,  nullable=true)
+     */
+    private $token;
 
     /**
      * @var File|null
@@ -80,14 +87,16 @@ class Electeur
     private $votes;
 
     /**
-     * @ORM\Column(type="string", length=255,  nullable=true)
+     * @ORM\Column(type="boolean")
      */
-    private $token;
+    private $valide;
+
 
     public function __construct()
     {
         $this->updatedAt = new \DateTime('now');
         $this->votes = new ArrayCollection();
+        $this->valide = false;
     }
 
     public function getId(): ?int
@@ -95,21 +104,6 @@ class Electeur
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNumElectorale(): ?string
-    {
-        return $this->num_electorale;
-    }
-
-    /**
-     * @param mixed $num_electorale
-     */
-    public function setNumElectorale($num_electorale): void
-    {
-        $this->num_electorale = $num_electorale;
-    }
 
     public function getNom(): ?string
     {
@@ -181,6 +175,26 @@ class Electeur
         $this->num_carte = $num_carte;
 
         return $this;
+    }
+
+    public function getNumElectorale(): ?string
+    {
+        return $this->num_electorale;
+    }
+
+    public function setNumElectorale($num_electorale): void
+    {
+        $this->num_electorale = $num_electorale;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken($token): void
+    {
+        $this->token = $token;
     }
 
     public function getCniPhoto(): ?string
@@ -260,11 +274,25 @@ class Electeur
         return $this;
     }
 
-    public function getVotant() {
+    public function getValide(): ?bool
+    {
+        return $this->valide;
+    }
+
+    public function setValide(bool $valide): self
+    {
+        $this->valide = $valide;
+
+        return $this;
+    }
+
+    public function getVotant()
+    {
         return $this->getNom(). ' '.$this->getPrenom();
     }
 
-    public function getAge() {
+    public function getAge()
+    {
 
         $age = date('Y') - $this->getDateNaissance()->format('Y');
 
@@ -274,25 +302,8 @@ class Electeur
         return $age;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-
-    /**
-     * @param mixed $token
-     */
-    public function setToken($token): void
-    {
-        $this->token = $token;
-    }
-
     public function __toString()
     {
         return $this->getNom()." ".$this->getPrenom();
     }
-
 }

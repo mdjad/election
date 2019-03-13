@@ -12,6 +12,9 @@ easy_admin:
                     - {property: 'num_carte', type: 'number'}
                     - {property: 'cniFile', type: 'vich_image'}
             list:
-                fields: ['id', 'votant', 'age', 'telephone', 'email', {property: 'cni_photo', label: 'CNI', type: 'image', base_path: '%electeur_images%'}]
+                fields: ['id', {property: 'valide', type: 'boolean', label: 'Active'}, 'votant', 'age', 'telephone', 'email', {property: 'cni_photo', label: 'CNI', type: 'image', base_path: '%electeur_images%'}]
+                sort: 'valide'
             show:
+                actions:
+                    - {name: 'electeur_validation', type: 'route', icon: 'envelope'}
                 fields: ['votant', 'age', 'telephone', 'email', {property: 'cni_photo', label: 'CNI', type: 'image', base_path: '%electeur_images%'}]

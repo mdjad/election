@@ -25,6 +25,7 @@ security:
                 lifetime: 7200 # 2 hours in seconds
                 path: /manager
     role_hierarchy:
-        ROLE_ADMIN: REOLE_MANAGER
+        ROLE_MANAGER: ROLE_CONTROLEUR
+        ROLE_ADMIN: [ROLE_MANAGER, ROLE_ALLOWED_TO_SWITCH]
     access_control:
-        - { path: ^/manager, roles: [ROLE_ADMIN, ROLE_MANAGER, ROLE_GESTION] }
+        - { path: ^/manager, roles: [ROLE_ADMIN, ROLE_MANAGER] }
