@@ -39,6 +39,7 @@ class Candidat
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Url
      */
     private $site_web;
 
@@ -215,7 +216,8 @@ class Candidat
         return $this;
     }
 
-    public function getPostulant() {
+    public function getPostulant()
+    {
         return $this->getNom(). ' '.$this->getPrenom();
     }
 
@@ -224,9 +226,10 @@ class Candidat
         $age = date('Y') - $this->getDateNaissance()->format('Y');
 
         if ( date('md') < $this->getDateNaissance()->format('md') ) {
-            return $age - 1;
+            $age =  $age - 1;
         }
-        return $age;
+
+        return $age.' ans';
     }
 
 

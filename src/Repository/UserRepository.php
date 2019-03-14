@@ -30,6 +30,14 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             ->getOneOrNullResult();
     }
 
+    public function findUsersByRole($role) {
+        return $this->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->setParameter('role', $role)
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

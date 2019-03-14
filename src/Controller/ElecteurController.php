@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Electeur;
 use App\Form\ElecteurType;
 use App\Repository\ElecteurRepository;
+use App\Repository\RoleRepository;
+use App\Repository\UserRepository;
 use Swift_Mailer;
 use Swift_Message;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +28,7 @@ class ElecteurController extends AbstractController
     /**
      * @Route("/inscription/nouveau", name="inscription_new", methods={"GET","POST"})
      */
-    public function inscription(Request $request ,Swift_Mailer $mailer): Response
+    public function inscription(Request $request, Swift_Mailer $mailer, UserRepository $users, RoleRepository $roles): Response
     {
         $electeur = new Electeur();
         $form = $this->createForm(ElecteurType::class, $electeur);
@@ -39,27 +41,43 @@ class ElecteurController extends AbstractController
             $entityManager->persist($electeur);
             $entityManager->flush();
 
+            // Get manager
+            $admins = $users->findAll();
+            $role = $roles->findOneBy(['nom' => 'ROLE_MANAGER']);
+            $manager = [];
+            foreach ($admins as $admin) {
+                if ($admin->getRole() == $role) {
+                    $manager[] = $admin->getEmail();
+                }
+            }
+
             //send mail admin
-            $messageAdmin = (new Swift_Message())
-                ->setSubject("Demande de Validation de ".$electeur)
+            $messageAdmin = (new Swift_Message("Demande de Validation de l'inscription de ".$electeur->getVotant()))
                 ->setFrom('noreplay@electiondiaspora.org')
-                ->setTo("adresseDesAdministrateurQuiValide@exemple.fr")
-                ->setBody($this->renderView( 'electeur/email/adminNotification.html.twig',
-                    array('electeur' => $electeur ) ), 'text/html' );
+                ->setTo($manager)
+                ->setBody(
+                    $this->renderView( 'electeur/email/adminNotification.html.twig',
+                    ['electeur' => $electeur, 'titre' => "Demande de Validation"]
+                    ),
+                    'text/html'
+                );
 
             //send mail electeur
-            $messageElect = (new Swift_Message())
-                ->setSubject("Avis de reception a la liste électorale")
+            $messageElect = (new Swift_Message("Avis de reception de votre inscription à la liste électrole!"))
                 ->setFrom('noreplay@electiondiaspora.org') //email admin
                 ->setTo($electeur->getEmail())
-                ->setBody($this->renderView( 'electeur/email/electeurNotification.html.twig',
-                    array('electeur' => $electeur ) ), 'text/html' );
+                ->setBody(
+                    $this->renderView( 'electeur/email/electeurNotification.html.twig',
+                    ['electeur' => $electeur, 'titre' => "Avis de reception"]
+                    ),
+                    'text/html'
+                );
 
 
             $mailer->send($messageAdmin);
             $mailer->send($messageElect);
 
-            $this->addFlash('success', 'Votre inscription a bien été effectué');
+            $this->addFlash('success', "Votre demande d'inscription a bien été effectué, et une notification par mail vous a été envoyé.");
             return $this->redirectToRoute('home');
         }
 
@@ -77,10 +95,10 @@ class ElecteurController extends AbstractController
             $electeur =  $electeurRepository->findOneBy(array('token'=>$token));
 
             if($electeur) {
-                return $this->redirectToRoute('easyadmin', array('action' => 'show','entity' => 'Electeur','menuIndex'=> 1,'id' => $electeur->getId()));
+                return $this->redirectToRoute('easyadmin', array('action' => 'show', 'entity' => 'Electeur', 'id' => $electeur->getId()));
             }else{
                 $this->addFlash('danger', 'Electeur non trouvé');
-                return $this->redirectToRoute('easyadmin', array('action' => 'list','entity' => 'Electeur','menuIndex'=> 1 ));
+                return $this->redirectToRoute('easyadmin', array('action' => 'list', 'entity' => 'Electeur'));
             }
     }
 
@@ -92,13 +110,12 @@ class ElecteurController extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $id = $request->query->get('id');
-        $electeur =  $electeurRepository->findOneBy($id);
+        $electeur =  $electeurRepository->findOneBy(['id' => $id]);
 
         if(!$electeur) {
             $this->addFlash('danger', 'Electeur non trouvé !');
             return $this->redirectToRoute('easyadmin', array('action' => 'list', 'entity' => 'Electeur' ));
         }else{
-
             if($this->getUser()){
                 if(! $electeur->getNumElectorale()) {
                     $electeur->setNumElectorale(self::generateNumerosElecteur($electeur));
@@ -107,12 +124,16 @@ class ElecteurController extends AbstractController
                     $entityManager->flush();
 
                     //send mail electeur
-                    $messageElect = (new Swift_Message())
-                        ->setSubject("Numeros Electeur")
+                    $messageElect = (new Swift_Message("Votre numero électeur"))
                         ->setFrom('noreplay@electiondiaspora.org') //email admin
                         ->setTo($electeur->getEmail())
-                        ->setBody($this->renderView( 'electeur/email/electeurConfirmation.html.twig',
-                            array('electeur' => $electeur ) ), 'text/html' );
+                        ->setBody(
+                            $this->renderView( 'electeur/email/electeurConfirmation.html.twig',
+                            ['electeur' => $electeur, 'titre' => "Envoi numero électeur"]
+                            ),
+                            'text/html'
+                    );
+
                     $mailer->send($messageElect);
 
                     $this->addFlash('success', 'Validation effectué');
@@ -132,6 +153,7 @@ class ElecteurController extends AbstractController
 
         $serial = hash('md5',$electeur->getNumCarte());
         $formattedSerial = "";
+
         for($i=0; $i<strlen($serial)/2; $i++){
             if($i == 4 || $i == 8 || $i == 12 || $i == 16){
                 $formattedSerial .= '-';

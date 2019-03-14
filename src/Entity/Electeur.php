@@ -5,14 +5,12 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ElecteurRepository")
- * @UniqueEntity(fields={"telephone", "num_carte", "num_electorale"})
  * @Vich\Uploadable
  */
 class Electeur
@@ -41,16 +39,32 @@ class Electeur
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\Type("numeric")
+     * @Assert\Length(
+     *     min = 7,
+     *     max = 12,
+     *     minMessage="Votre numero de téléphone ne peux pas contenir moins de: {{limit}}",
+     *     maxMessage="Votre numero de téléphone ne peux pas contenir plus de: {{limit}}"
+     * )
      */
     private $telephone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Email(
+     *     message = "L'adresse email '{{value}}' n'est pas valide."
+     * )
      */
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\Length(
+     *     min = 15,
+     *     max = 19,
+     *     minMessage="Votre numero de carte d'indentité ne doit pas contenir moins de: {{limit}}",
+     *     maxMessage="Votre numero de carte d'indentité ne doit pas contenir plus de: {{limit}}"
+     * )
      */
     private $num_carte;
 
@@ -288,22 +302,22 @@ class Electeur
 
     public function getVotant()
     {
-        return $this->getNom(). ' '.$this->getPrenom();
+        return $this->getNom().' '.$this->getPrenom();
     }
 
     public function getAge()
     {
-
         $age = date('Y') - $this->getDateNaissance()->format('Y');
 
         if ( date('md') < $this->getDateNaissance()->format('md') ) {
-            return $age - 1;
+            $age = $age - 1;
         }
-        return $age;
+
+        return $age.' ans';
     }
 
     public function __toString()
     {
-        return $this->getNom()." ".$this->getPrenom();
+        return $this->getNom().' '.$this->getPrenom();
     }
 }
