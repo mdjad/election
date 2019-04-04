@@ -17,6 +17,10 @@ easy_admin:
         assets:
             css:
                 - '/css/election.css'
+                - 'bundles/easyadmin/bootstrap-all.css'
+            js:
+                - '/js/election.js'
+                - 'bundles/easyadmin/bootstrap-all.js'
             favicon: '/images/favicon/election_icon.png'
     formats:
         date:     'd/m/Y'
