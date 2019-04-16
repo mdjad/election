@@ -88,21 +88,6 @@ class ElecteurController extends AbstractController
     }
 
     /**
-     * @Route("/inscription/validation/{token}", name="electeur_redirect")
-     */
-    public function redirection($token, ElecteurRepository $electeurRepository): Response
-    {
-            $electeur =  $electeurRepository->findOneBy(array('token'=>$token));
-
-            if($electeur) {
-                return $this->redirectToRoute('easyadmin', array('action' => 'show', 'entity' => 'Electeur', 'id' => $electeur->getId()));
-            }else{
-                $this->addFlash('danger', 'Electeur non trouvé');
-                return $this->redirectToRoute('easyadmin', array('action' => 'list', 'entity' => 'Electeur'));
-            }
-    }
-
-    /**
      * @Route("/manager/electeur/validation", name="electeur_validation")
      * @IsGranted("ROLE_MANAGER")
      */

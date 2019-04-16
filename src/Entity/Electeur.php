@@ -74,11 +74,6 @@ class Electeur
     private $num_electorale;
 
     /**
-     * @ORM\Column(type="string", length=255,  nullable=true)
-     */
-    private $token;
-
-    /**
      * @var File|null
      * @Assert\Image()
      * @Vich\UploadableField(mapping="electteurs", fileNameProperty="cni_photo")
@@ -91,6 +86,11 @@ class Electeur
     private $cni_photo;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $valide;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
@@ -99,12 +99,6 @@ class Electeur
      * @ORM\OneToMany(targetEntity="App\Entity\Vote", mappedBy="votant", orphanRemoval=true)
      */
     private $votes;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $valide;
-
 
     public function __construct()
     {
