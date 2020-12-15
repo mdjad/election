@@ -1,6 +1,0 @@
-# easy_admin
-# The configuration options are explained in detail in the bundle documentation,
-# which is published at https://symfony.com/doc/current/bundles/EasyAdminBundle/index.html
-#
-imports:
-    - { resource: easy_admin/ }
