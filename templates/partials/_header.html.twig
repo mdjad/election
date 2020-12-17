@@ -3,21 +3,21 @@
 <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="{{ path('home') }}">
-            <img src="{{ asset('images/image/comores_drapeau.png') }}" width="52" alt="BatiPro&Co"> Election
+            <img src="{{ asset('images/image/election_drapeau.png') }}" width="35" alt="Election System">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item {{ route == 'home' ? 'active' }}">
                     <a class="nav-link" href="{{ path('home') }}">Accueil <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item {{ route == 'usage' ? 'active' }}">
                     <a class="nav-link" href="{{ path('usage') }}">Déroulement</a>
                 </li>
-                <li class="nav-item {{ route == 'code' ? 'active' }}">
-                    <a class="nav-link" href="{{ path('code') }}">Code électorale</a>
+                <li class="nav-item {{ route == 'mode' ? 'active' }}">
+                    <a class="nav-link" href="{{ path('mode') }}">Mode élection</a>
                 </li>
                 <li class="nav-item {{ route == 'inscription' or route == 'inscription_new' ? 'active' }}">
                     <a class="nav-link" href="{{ path('inscription') }}">Inscription</a>

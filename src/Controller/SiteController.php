@@ -38,7 +38,7 @@ class SiteController extends AbstractController
     }
 
     /**
-     * @Route("/code", name="code")
+     * @Route("/mode", name="mode")
      */
     public function code()
     {
