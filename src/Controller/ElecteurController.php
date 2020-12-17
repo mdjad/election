@@ -22,7 +22,9 @@ class ElecteurController extends AbstractController
      */
     public function index(): Response
     {
-        return $this->render('electeur/index.html.twig');
+        return $this->render('electeur/index.html.twig', [
+            'title' => 'Inscription',
+        ]);
     }
 
     /**
